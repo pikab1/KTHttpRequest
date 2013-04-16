@@ -42,7 +42,7 @@
                                     <action selector="cancel:" destination="2" eventType="touchUpInside" id="vlb-co-V8H"/>
                                 </connections>
                             </button>
-                            <progressView opaque="NO" contentMode="scaleToFill" progress="0.5" id="cxa-lg-taL">
+                            <progressView opaque="NO" contentMode="scaleToFill" id="cxa-lg-taL">
                                 <rect key="frame" x="108" y="221" width="192" height="9"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </progressView>
@@ -53,7 +53,7 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <progressView opaque="NO" contentMode="scaleToFill" progress="0.5" id="m0c-JX-gjA">
+                            <progressView opaque="NO" contentMode="scaleToFill" id="m0c-JX-gjA">
                                 <rect key="frame" x="108" y="290" width="192" height="9"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </progressView>
@@ -80,6 +80,8 @@
         <class className="ViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/ViewController.h"/>
             <relationships>
+                <relationship kind="action" name="cancel:"/>
+                <relationship kind="action" name="send:"/>
                 <relationship kind="outlet" name="dlProgressView" candidateClass="UIProgressView"/>
                 <relationship kind="outlet" name="ulProgressView" candidateClass="UIProgressView"/>
             </relationships>
