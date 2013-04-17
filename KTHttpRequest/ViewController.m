@@ -43,28 +43,25 @@
 	
 	__weak KTHttpRequest *weakObject = request;
 	
-	[request setTaskStartBlock:^{
-		NSLog(@"タスク開始");
+	[request setConnectionStartBlock:^{
+		NSLog(@"通信開始");
 	}];
-	[request setTaskFinishBlock:^{
-		NSLog(@"タスク終了");
-	}];
-	[request setUploadProgressBlock:^(long double bytes, long double totalBytes, long double totalBytesExpected) {
-		NSLog(@"upload %Lf %Lf %Lf", bytes, totalBytes, totalBytesExpected);
-	}];
-	[request setDownloadProgressBlock:^(long double bytes, long double totalBytes, long double totalBytesExpected) {
-		NSLog(@"download %Lf %Lf %Lf", bytes, totalBytes, totalBytesExpected);
-	}];
-	[request setConnectionFinishBlock:^{
-		NSLog(@"blocks success tag:%d", weakObject.tag);
-		NSLog(@"%@", weakObject.responseString);
-		NSLog(@"json %@", weakObject.responseJSON);
-	}];
-	[request setConnectionFailBlock:^{
-		NSLog(@"通信エラー %d / error %@", weakObject.responseStatusCode, weakObject.error);
-	}];
+//	[request setUploadProgressBlock:^(long double bytes, long double totalBytes, long double totalBytesExpected) {
+//		NSLog(@"upload %Lf %Lf %Lf", bytes, totalBytes, totalBytesExpected);
+//	}];
+//	[request setDownloadProgressBlock:^(long double bytes, long double totalBytes, long double totalBytesExpected) {
+//		NSLog(@"download %Lf %Lf %Lf", bytes, totalBytes, totalBytesExpected);
+//	}];
 	[request setConnectionHeaderBlock:^{
 		NSLog(@"ヘッダ受信");
+	}];
+	[request setConnectionFinishBlock:^{
+		NSLog(@"通信成功");
+		NSLog(@"%@", weakObject.responseString);
+		//NSLog(@"json %@", weakObject.responseJSON);
+	}];
+	[request setConnectionFailBlock:^{
+		NSLog(@"通信失敗 fail %d / error %@", weakObject.responseStatusCode, weakObject.error);
 	}];
 	
 	// ベーシック認証サイトにアクセスする場合の設定

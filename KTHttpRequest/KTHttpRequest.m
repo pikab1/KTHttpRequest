@@ -69,11 +69,12 @@ const int defaultRedirectionLimit = 5; // この数値以上リダイレクト�
 	NSMutableData *async_data;
 	NSURLConnection *connection;
 	NSDictionary *headerFields;
-	SEL didHeaderSelector;
+	SEL willStartSelector;
+	SEL didReceiveResponseHeadersSelector;
 	SEL didFinishSelector;
 	SEL didFailSelector;
 	__weak NSObject <KTHttpRequestDelegate> *delegate;
-	NSOperationQueue *sharedQueue;
+	NSOperationQueue *privateQueue;
 	long double uploadTotalBytesWritten;
 	long double _totalBytesExpectedToWrite;
 	long double downloadTotalBytesLength;
@@ -97,13 +98,10 @@ typedef void (^mainThreadProcessing)(void);
 
 // handler
 typedef void(^ConnectionHandler)(void);
+@property (nonatomic, copy) ConnectionHandler connectionStartHandler;
 @property (nonatomic, copy) ConnectionHandler connectionHeaderHandler;
 @property (nonatomic, copy) ConnectionHandler connectionFinishHandler;
 @property (nonatomic, copy) ConnectionHandler connectionFailHandler;
-typedef void(^TaskHandler)(void);
-@property (nonatomic, copy) TaskHandler taskStartHandler;
-@property (nonatomic, copy) TaskHandler taskFinishHandler;
-@property (nonatomic, copy) TaskHandler taskCancelHandler;
 typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long double totalBytesExpected);
 @property (nonatomic, copy) ProgressHandler uploadProgressHandler;
 @property (nonatomic, copy) ProgressHandler downloadProgressHandler;
@@ -121,12 +119,10 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 @implementation KTHttpRequest
 
+@synthesize connectionStartHandler;
 @synthesize connectionHeaderHandler;
 @synthesize connectionFinishHandler;
 @synthesize connectionFailHandler;
-@synthesize taskStartHandler;
-@synthesize taskFinishHandler;
-@synthesize taskCancelHandler;
 @synthesize responseString;
 @synthesize responseJSON;
 @synthesize responseData;
@@ -139,6 +135,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 @synthesize showIndicator;
 @synthesize isJsonResponse;
 @synthesize responseStatusCode;
+@synthesize willStartSelector;
 @synthesize didReceiveResponseHeadersSelector;
 @synthesize didFinishSelector;
 @synthesize didFailSelector;
@@ -228,19 +225,9 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 #pragma mark -- setter and getter --
 //-------------------------------------------------------------------------------------//
 
-// タスクが開始した時点で呼び出すBlock
-- (void)setTaskStartBlock:(void(^)(void))block {
-	self.taskStartHandler = block;
-}
-
-// タスクが終了した時点で呼び出すBlock
-- (void)setTaskFinishBlock:(void(^)(void))block {
-	self.taskFinishHandler = block;
-}
-
-// タスクがキャンセルされた時点で呼び出すBlock
-- (void)setTaskCancelBlock:(void(^)(void))block {
-	self.taskCancelHandler = block;
+// 通信を開始する直前に時点で呼ばれるBlock
+- (void)setConnectionStartBlock:(void(^)(void))block {
+	self.connectionStartHandler = block;
 }
 
 // ヘッダを受信した時点で呼び出すBlock
@@ -476,11 +463,11 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	非同期通信開始メソッド
  */
 - (void)startAsynchronous {
-	if (!sharedQueue) {
-		sharedQueue = [[NSOperationQueue alloc] init];
-		sharedQueue.maxConcurrentOperationCount = 1;
+	if (!privateQueue) {
+		privateQueue = [[NSOperationQueue alloc] init];
+		privateQueue.maxConcurrentOperationCount = 1;
 	}
-	[sharedQueue addOperation:self];
+	[privateQueue addOperation:self];
 }
 
 // 非同期通信本体
@@ -489,7 +476,6 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	
 	IS_CANCEL_OPERATION;
 	
-	//[self performSelectorOnMainThread:@selector(connectionStart) withObject:nil waitUntilDone:[NSThread isMainThread]];
 	[self performSelectorOnMainThread:@selector(connectionStart) withObject:nil waitUntilDone:YES];
 	
 	[self clear]; // 受信データ初期化
@@ -678,7 +664,9 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	}
 	
 	if (self.uploadProgressHandler) {
-		self.uploadProgressHandler(bytesWritten, uploadTotalBytesWritten, _totalBytesExpectedToWrite);
+		[self mainThread:^{
+			self.uploadProgressHandler(bytesWritten, uploadTotalBytesWritten, _totalBytesExpectedToWrite);
+		}];
 	}
 }
 
@@ -746,7 +734,9 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	}
 	
 	if (self.downloadProgressHandler) {
-		self.downloadProgressHandler((long double)[data length], (long double)downloadTotalBytesLength, (long double)downloadExpectedContentLength);
+		[self mainThread:^{
+			self.downloadProgressHandler((long double)[data length], (long double)downloadTotalBytesLength, (long double)downloadExpectedContentLength);
+		}];
 	}
 	
 	[async_data appendData:data];
@@ -803,6 +793,14 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	KTHTTP_LOG_METHOD;
 	
 	IS_CANCEL_OPERATION;
+	
+	if (self.connectionStartHandler) {
+		self.connectionStartHandler();
+	}
+	
+	if (delegate && [delegate respondsToSelector:willStartSelector]) {
+		[delegate performSelector:willStartSelector withObject:self afterDelay:0.0f];
+	}
 	
 	if ([self showIndicator]) {
 		[SVProgressHUD showWithStatus:self.indicatorMessage maskType:SVProgressHUDMaskTypeClear];
@@ -1032,10 +1030,6 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		// ダウンロードを開始する
 		IS_CANCEL_OPERATION;
 		
-		if (self.taskStartHandler) {
-			self.taskStartHandler();
-		}
-		
 		[self setValue:[NSNumber numberWithBool:YES] forKey:@"isExecuting"];
 		[self startOperation];
 	}
@@ -1046,12 +1040,13 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
  */
 - (void)cancelConnection {
 	KTHTTP_LOG_METHOD;
-	[connection cancel];
-	connection = nil;
-	if (self.taskCancelHandler) {
-		self.taskCancelHandler();
+	
+	if (connection) {
+		[connection cancel];
+		connection = nil;
+		
+		[self performSelectorOnMainThread:@selector(connectionError) withObject:nil waitUntilDone:[NSThread isMainThread]];
 	}
-	[self finishOperation];
 }
 
 /*
@@ -1067,10 +1062,8 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		
 		[cancelOperationLock unlock];
 		
-		if (self.taskCancelHandler) {
-			self.taskCancelHandler();
-		}
-		[self finishOperation];
+		[self cancelConnection];
+		
 		return;
 	}
 	[cancelOperationLock unlock];
@@ -1081,10 +1074,6 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
  */
 - (void)finishOperation {
 	KTHTTP_LOG_METHOD;
-	
-	if (self.taskFinishHandler) {
-		self.taskFinishHandler();
-	}
 	
 	// 開始してないなら一度開始させてから終了させる。（下記のメッセージが表示される為の対処）
 	// *** went isFinished=YES without being started by the queue it is in

@@ -1,6 +1,6 @@
 //
 //  KTHttpRequest.h
-//  Created by pikab1 on 1.3.0
+//  Created by pikab1 on 1.3.1
 //  
 //  required iOS5,ARC
 //
@@ -18,6 +18,7 @@ typedef enum {
 
 // delegate and selector
 @property (weak) NSObject <KTHttpRequestDelegate> *delegate;
+@property (assign) SEL willStartSelector;									// 通信を開始する直前に呼び出すセレクタ
 @property (assign) SEL didReceiveResponseHeadersSelector;					// ヘッダを受信した時点で呼び出すセレクタ
 @property (assign) SEL didFinishSelector;									// 通信が成功した時点で呼び出すセレクタ
 @property (assign) SEL didFailSelector;										// 通信が失敗した時点で呼び出すセレクタ
@@ -78,40 +79,32 @@ typedef enum {
 - (void)addRequestHeader:(NSString *)header value:(NSString *)value;	// requestオブジェクトに対してRequestHeaderを設定します
 - (NSDictionary *)allHeaderFields;	// レスポンスヘッダを返します
 
-// タスクが開始した時点で呼び出すBlock
-- (void)setTaskStartBlock:(void(^)(void))block;
-
-// タスクが終了した時点で呼び出すBlock
-- (void)setTaskFinishBlock:(void(^)(void))block;
-
-// タスクがキャンセルされた時点で呼び出すBlock
-- (void)setTaskCancelBlock:(void(^)(void))block;
+// 通信を開始する直前に時点で呼ばれるBlock
+- (void)setConnectionStartBlock:(void(^)(void))block;	/* ON MAIN THREAD */
 
 // ヘッダを受信した時点で呼び出すBlock
-- (void)setConnectionHeaderBlock:(void(^)(void))block;
+- (void)setConnectionHeaderBlock:(void(^)(void))block;	/* ON MAIN THREAD */
 
 // 通信が成功した時点で呼び出すBlock
-- (void)setConnectionFinishBlock:(void(^)(void))block;
+- (void)setConnectionFinishBlock:(void(^)(void))block;	/* ON MAIN THREAD */
 
 // 通信が失敗した時点で呼び出すBlock
-- (void)setConnectionFailBlock:(void(^)(void))block;
+- (void)setConnectionFailBlock:(void(^)(void))block;	/* ON MAIN THREAD */
 
 // アップロード進捗を返すBlock
-- (void)setUploadProgressBlock:(void (^)(long double bytes, long double totalBytes, long double totalBytesExpected))block;
+- (void)setUploadProgressBlock:(void (^)(long double bytes, long double totalBytes, long double totalBytesExpected))block;		/* ON MAIN THREAD */
 
 // ダウンロード進捗を返すBlock
-- (void)setDownloadProgressBlock:(void (^)(long double bytes, long double totalBytes, long double totalBytesExpected))block;
+- (void)setDownloadProgressBlock:(void (^)(long double bytes, long double totalBytes, long double totalBytesExpected))block;	/* ON MAIN THREAD */
 
 // 通信開始／ヘッダ受信／通信成功／通信失敗／それぞれのタイミングで別処理を行う場合はこれらをOVERRIDEする
-/* ON MAIN THREAD */
-- (void)connectionStart;
-- (void)connectionHeader;
-- (void)connectionSuccess;
-- (void)connectionError;
+- (void)connectionStart;		/* ON MAIN THREAD */
+- (void)connectionHeader;		/* ON MAIN THREAD */
+- (void)connectionSuccess;		/* ON MAIN THREAD */
+- (void)connectionError;		/* ON MAIN THREAD */
 
-/* ON SUB THREAD */
-- (void)settingRequest;
-- (void)finishOperation;
+- (void)settingRequest;		/* ON SUB THREAD */
+- (void)finishOperation;	/* ON SUB THREAD */
 
 @end
 
