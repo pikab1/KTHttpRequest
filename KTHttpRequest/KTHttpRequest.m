@@ -11,9 +11,9 @@ NSString *const KTAuthenticationChallengeSkip = @"KTAuthenticationChallengeSkip"
 #pragma mark -- macros --
 //-------------------------------------------------------------------------------------//
 
-#define UPDATE_UL_PROGRESS(p) if ([NSThread isMainThread]) {ulProgressView.progress = p;} else {dispatch_async(dispatch_get_main_queue(), ^{ulProgressView.progress = p;});}
-#define UPDATE_DL_PROGRESS(p) if ([NSThread isMainThread]) {dlProgressView.progress = p;} else {dispatch_async(dispatch_get_main_queue(), ^{dlProgressView.progress = p;});}
-#define IS_CANCEL_OPERATION if ([self isCancelled]) {if (self.taskCancelHandler != nil) {self.taskCancelHandler();}[self finishOperation];return;}
+#define UPDATE_UL_PROGRESS(p) if (ulProgressView) {dispatch_async(dispatch_get_main_queue(), ^{ulProgressView.progress = p;});}
+#define UPDATE_DL_PROGRESS(p) if (dlProgressView) {dispatch_async(dispatch_get_main_queue(), ^{dlProgressView.progress = p;});}
+#define IS_CANCEL_OPERATION [self isCancelOperation];
 
 //-------------------------------------------------------------------------------------//
 #pragma mark -- log setting --
@@ -22,11 +22,13 @@ NSString *const KTAuthenticationChallengeSkip = @"KTAuthenticationChallengeSkip"
 // low 1 ~ 3 high
 #define APP_LOG_LEVEL 0
 
-//#  define KTHTTP_LOG(...) NSLog(__VA_ARGS__)
-//#  define KTHTTP_LOG_METHOD NSLog(@"%s line:%d", __func__ , __LINE__)
-
+#if APP_LOG_LEVEL >= 1
+#  define KTHTTP_LOG(...) NSLog(__VA_ARGS__)
+#  define KTHTTP_LOG_METHOD NSLog(@"%s line:%d", __func__ , __LINE__)
+#else
 #  define KTHTTP_LOG(...) ;
 #  define KTHTTP_LOG_METHOD ;
+#endif
 
 //-------------------------------------------------------------------------------------//
 #pragma mark -- default parameters --
@@ -79,7 +81,10 @@ const int defaultRedirectionLimit = 5; // この数値以上リダイレクト�
 	NSURLAuthenticationChallenge *_authenticationChallenge;
 	int redirectCount;
 	
+	// operation
+	BOOL isCanceled;
 	BOOL _isExecuting, _isFinished;
+	NSLock *cancelOperationLock;
 }
 
 @property (nonatomic, strong) NSMutableData *requestBody;
@@ -92,9 +97,9 @@ typedef void (^mainThreadProcessing)(void);
 
 // handler
 typedef void(^ConnectionHandler)(void);
-@property (nonatomic, copy) ConnectionHandler headerHandler;
-@property (nonatomic, copy) ConnectionHandler finishHandler;
-@property (nonatomic, copy) ConnectionHandler failHandler;
+@property (nonatomic, copy) ConnectionHandler connectionHeaderHandler;
+@property (nonatomic, copy) ConnectionHandler connectionFinishHandler;
+@property (nonatomic, copy) ConnectionHandler connectionFailHandler;
 typedef void(^TaskHandler)(void);
 @property (nonatomic, copy) TaskHandler taskStartHandler;
 @property (nonatomic, copy) TaskHandler taskFinishHandler;
@@ -116,9 +121,9 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 @implementation KTHttpRequest
 
-@synthesize headerHandler;
-@synthesize finishHandler;
-@synthesize failHandler;
+@synthesize connectionHeaderHandler;
+@synthesize connectionFinishHandler;
+@synthesize connectionFailHandler;
 @synthesize taskStartHandler;
 @synthesize taskFinishHandler;
 @synthesize taskCancelHandler;
@@ -166,6 +171,8 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	KTHTTP_LOG_METHOD;
 	self = [super init];
 	
+	cancelOperationLock = [[NSLock alloc] init];
+	
 	[self setPostFormat:defaultKTPostFormat];
 	[self setStringEncoding:defaultStringEncoding];
 	[self showIndicator:defaultShowIndicator];
@@ -192,9 +199,8 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 - (void)dealloc {
 #if APP_LOG_LEVEL >= 1
-	NSLog(@"dealloc");
+	KTHTTP_LOG(@"dealloc");
 #endif
-	[self cancelConnection]; // connection release
 }
 
 /**
@@ -238,18 +244,18 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 }
 
 // ヘッダを受信した時点で呼び出すBlock
-- (void)setHeaderBlock:(void(^)(void))block {
-	self.headerHandler = block;
+- (void)setConnectionHeaderBlock:(void(^)(void))block {
+	self.connectionHeaderHandler = block;
 }
 
 // 通信が成功した時点で呼び出すBlock
-- (void)setFinishBlock:(void(^)(void))block {
-	self.finishHandler = block;
+- (void)setConnectionFinishBlock:(void(^)(void))block {
+	self.connectionFinishHandler = block;
 }
 
 // 通信が失敗した時点で呼び出すBlock
-- (void)setFailBlock:(void(^)(void))block {
-	self.failHandler = block;
+- (void)setConnectionFailBlock:(void(^)(void))block {
+	self.connectionFailHandler = block;
 }
 
 // アップロード進捗を返すBlock
@@ -630,7 +636,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
  */
 -(NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSHTTPURLResponse *)redirectResponse {
 #if APP_LOG_LEVEL >= 1
-	NSLog(@"willSendRequest URL:%@", [[request URL] absoluteString]);
+	KTHTTP_LOG(@"willSendRequest URL:%@", [[request URL] absoluteString]);
 #endif
     NSURLRequest *newRequest = request;
 	if (redirectCount > [self redirectionLimit]) {
@@ -654,9 +660,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	IS_CANCEL_OPERATION;
 	
 	uploadTotalBytesWritten += bytesWritten;
-	if (ulProgressView) {
-		UPDATE_UL_PROGRESS(uploadTotalBytesWritten / _totalBytesExpectedToWrite);
-	}
+	UPDATE_UL_PROGRESS(uploadTotalBytesWritten / _totalBytesExpectedToWrite);
 
 #if APP_LOG_LEVEL >= 3
 	KTHTTP_LOG(@"============ UPLOAD ============");
@@ -673,7 +677,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		}];
 	}
 	
-	if (self.uploadProgressHandler != nil) {
+	if (self.uploadProgressHandler) {
 		self.uploadProgressHandler(bytesWritten, uploadTotalBytesWritten, _totalBytesExpectedToWrite);
 	}
 }
@@ -706,7 +710,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		}
 	}
 	@catch (NSException *exception) {
-		//NSLog(@"main: Caught %@: %@", [exception name], [exception reason]);
+		//KTHTTP_LOG(@"main: Caught %@: %@", [exception name], [exception reason]);
 	}
 	
 	[self performSelectorOnMainThread:@selector(connectionHeader) withObject:nil waitUntilDone:[NSThread isMainThread]];
@@ -733,9 +737,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	
 	downloadTotalBytesLength += readBytes;
 	
-	if (dlProgressView) {
-		UPDATE_DL_PROGRESS((long double)downloadTotalBytesLength / (long double)downloadExpectedContentLength);
-	}
+	UPDATE_DL_PROGRESS((long double)downloadTotalBytesLength / (long double)downloadExpectedContentLength);
 	
 	if (delegate && [delegate respondsToSelector:@selector(progressReceive:totalBytes:totalBytesExpected:withObject:)]) {
 		[self mainThread:^{
@@ -743,7 +745,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		}];
 	}
 	
-	if (self.downloadProgressHandler != nil) {
+	if (self.downloadProgressHandler) {
 		self.downloadProgressHandler((long double)[data length], (long double)downloadTotalBytesLength, (long double)downloadExpectedContentLength);
 	}
 	
@@ -815,8 +817,8 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	
 	IS_CANCEL_OPERATION;
 	
-	if (self.headerHandler != nil) {
-		self.headerHandler();
+	if (self.connectionHeaderHandler) {
+		self.connectionHeaderHandler();
 	}
 	
 	if (delegate && [delegate respondsToSelector:didReceiveResponseHeadersSelector]) {
@@ -833,8 +835,8 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	
 	IS_CANCEL_OPERATION;
 	
-	if (self.failHandler != nil) {
-		self.failHandler();
+	if (self.connectionFailHandler) {
+		self.connectionFailHandler();
 	}
 	
 	if (delegate && [delegate respondsToSelector:didFailSelector]) {
@@ -853,8 +855,8 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	
 	IS_CANCEL_OPERATION;
 	
-	if (self.finishHandler != nil) {
-		self.finishHandler();
+	if (self.connectionFinishHandler) {
+		self.connectionFinishHandler();
 	}
 	
 	if (delegate && [delegate respondsToSelector:didFinishSelector]) {
@@ -1030,19 +1032,13 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		// ダウンロードを開始する
 		IS_CANCEL_OPERATION;
 		
-		if (self.taskStartHandler != nil) {
+		if (self.taskStartHandler) {
 			self.taskStartHandler();
 		}
 		
 		[self setValue:[NSNumber numberWithBool:YES] forKey:@"isExecuting"];
 		[self startOperation];
 	}
-}
-
-- (void)cancel {
-	KTHTTP_LOG_METHOD;
-	
-	[super cancel];
 }
 
 /**
@@ -1052,6 +1048,32 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	KTHTTP_LOG_METHOD;
 	[connection cancel];
 	connection = nil;
+	if (self.taskCancelHandler) {
+		self.taskCancelHandler();
+	}
+	[self finishOperation];
+}
+
+/*
+	queueがキャンセルされていた時の処理
+ */
+- (void)isCancelOperation {
+	
+	[cancelOperationLock lock];
+	
+	if ([self isCancelled] && !isCanceled) {
+		
+		isCanceled = YES;
+		
+		[cancelOperationLock unlock];
+		
+		if (self.taskCancelHandler) {
+			self.taskCancelHandler();
+		}
+		[self finishOperation];
+		return;
+	}
+	[cancelOperationLock unlock];
 }
 
 /**
@@ -1060,12 +1082,12 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 - (void)finishOperation {
 	KTHTTP_LOG_METHOD;
 	
-	if (self.taskFinishHandler != nil) {
+	if (self.taskFinishHandler) {
 		self.taskFinishHandler();
 	}
 	
 	// 開始してないなら一度開始させてから終了させる。（下記のメッセージが表示される為の対処）
-	// *** CardRequest 0x1dd9f2d0 went isFinished=YES without being started by the queue it is in
+	// *** went isFinished=YES without being started by the queue it is in
 	if (![self isExecuting]) {
 		[self setValue:[NSNumber numberWithBool:YES] forKey:@"isExecuting"];
 	}

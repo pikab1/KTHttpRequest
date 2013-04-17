@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC360FB5171E2F8000DD7531 /* KTHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = BC360FB4171E2F8000DD7531 /* KTHttpRequest.m */; };
 		BC90C6D4171D4CCC00015305 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90C6D3171D4CCC00015305 /* UIKit.framework */; };
 		BC90C6D6171D4CCC00015305 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90C6D5171D4CCC00015305 /* Foundation.framework */; };
 		BC90C6D8171D4CCC00015305 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90C6D7171D4CCC00015305 /* CoreGraphics.framework */; };
@@ -18,13 +19,14 @@
 		BC90C6EA171D4CCC00015305 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BC90C6E9171D4CCC00015305 /* Default-568h@2x.png */; };
 		BC90C6ED171D4CCC00015305 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BC90C6EB171D4CCC00015305 /* MainStoryboard.storyboard */; };
 		BC90C6F0171D4CCC00015305 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BC90C6EF171D4CCC00015305 /* ViewController.m */; };
-		BC90C6FB171D4CFD00015305 /* KTHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = BC90C6F8171D4CFD00015305 /* KTHttpRequest.m */; };
 		BC90C6FC171D4CFD00015305 /* ORKTHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = BC90C6FA171D4CFD00015305 /* ORKTHttpRequest.m */; };
 		BC90C701171D4D0F00015305 /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = BC90C6FF171D4D0F00015305 /* SVProgressHUD.m */; };
 		BC90C702171D4D0F00015305 /* SVProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = BC90C700171D4D0F00015305 /* SVProgressHUD.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BC360FB3171E2F8000DD7531 /* KTHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KTHttpRequest.h; sourceTree = "<group>"; };
+		BC360FB4171E2F8000DD7531 /* KTHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KTHttpRequest.m; sourceTree = "<group>"; };
 		BC90C6D0171D4CCC00015305 /* KTHttpRequest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KTHttpRequest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC90C6D3171D4CCC00015305 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		BC90C6D5171D4CCC00015305 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -41,8 +43,6 @@
 		BC90C6EC171D4CCC00015305 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		BC90C6EE171D4CCC00015305 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		BC90C6EF171D4CCC00015305 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		BC90C6F7171D4CFD00015305 /* KTHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KTHttpRequest.h; sourceTree = "<group>"; };
-		BC90C6F8171D4CFD00015305 /* KTHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KTHttpRequest.m; sourceTree = "<group>"; };
 		BC90C6F9171D4CFD00015305 /* ORKTHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ORKTHttpRequest.h; sourceTree = "<group>"; };
 		BC90C6FA171D4CFD00015305 /* ORKTHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ORKTHttpRequest.m; sourceTree = "<group>"; };
 		BC90C6FE171D4D0F00015305 /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
@@ -123,8 +123,8 @@
 		BC90C6F6171D4CED00015305 /* KTHttpRequest */ = {
 			isa = PBXGroup;
 			children = (
-				BC90C6F7171D4CFD00015305 /* KTHttpRequest.h */,
-				BC90C6F8171D4CFD00015305 /* KTHttpRequest.m */,
+				BC360FB3171E2F8000DD7531 /* KTHttpRequest.h */,
+				BC360FB4171E2F8000DD7531 /* KTHttpRequest.m */,
 				BC90C6F9171D4CFD00015305 /* ORKTHttpRequest.h */,
 				BC90C6FA171D4CFD00015305 /* ORKTHttpRequest.m */,
 			);
@@ -211,9 +211,9 @@
 				BC90C6E0171D4CCC00015305 /* main.m in Sources */,
 				BC90C6E4171D4CCC00015305 /* AppDelegate.m in Sources */,
 				BC90C6F0171D4CCC00015305 /* ViewController.m in Sources */,
-				BC90C6FB171D4CFD00015305 /* KTHttpRequest.m in Sources */,
 				BC90C6FC171D4CFD00015305 /* ORKTHttpRequest.m in Sources */,
 				BC90C701171D4D0F00015305 /* SVProgressHUD.m in Sources */,
+				BC360FB5171E2F8000DD7531 /* KTHttpRequest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,6 +336,7 @@
 				BC90C6F5171D4CCC00015305 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

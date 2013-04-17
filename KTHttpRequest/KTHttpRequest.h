@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
-    KTMultipartFormDataPostFormat = 0,	// マルチパートPOST
+    KTMultipartFormDataPostFormat = 0,	// マルチパート
     KTURLEncodedPostFormat = 1			// POST
 } KTPostFormat;
 
@@ -88,13 +88,13 @@ typedef enum {
 - (void)setTaskCancelBlock:(void(^)(void))block;
 
 // ヘッダを受信した時点で呼び出すBlock
-- (void)setHeaderBlock:(void(^)(void))block;
+- (void)setConnectionHeaderBlock:(void(^)(void))block;
 
 // 通信が成功した時点で呼び出すBlock
-- (void)setFinishBlock:(void(^)(void))block;
+- (void)setConnectionFinishBlock:(void(^)(void))block;
 
 // 通信が失敗した時点で呼び出すBlock
-- (void)setFailBlock:(void(^)(void))block;
+- (void)setConnectionFailBlock:(void(^)(void))block;
 
 // アップロード進捗を返すBlock
 - (void)setUploadProgressBlock:(void (^)(long double bytes, long double totalBytes, long double totalBytesExpected))block;
