@@ -28,8 +28,12 @@
 }
 
 - (IBAction)cancel:(id)sender {
+	
+	// キューを使わない場合のキャンセル
 	[request cancelConnection];
-	//[queue cancelAllOperations];
+	
+	// キューを使う場合のキャンセル
+	// [queue cancelAllOperations]; or [request cancel];
 }
 
 - (IBAction)send:(id)sender {
@@ -51,15 +55,15 @@
 	[request setDownloadProgressBlock:^(long double bytes, long double totalBytes, long double totalBytesExpected) {
 		NSLog(@"download %Lf %Lf %Lf", bytes, totalBytes, totalBytesExpected);
 	}];
-	[request setFinishBlock:^{
+	[request setConnectionFinishBlock:^{
 		NSLog(@"blocks success tag:%d", weakObject.tag);
 		NSLog(@"%@", weakObject.responseString);
 		NSLog(@"json %@", weakObject.responseJSON);
 	}];
-	[request setFailBlock:^{
+	[request setConnectionFailBlock:^{
 		NSLog(@"通信エラー %d / error %@", weakObject.responseStatusCode, weakObject.error);
 	}];
-	[request setHeaderBlock:^{
+	[request setConnectionHeaderBlock:^{
 		NSLog(@"ヘッダ受信");
 	}];
 	
