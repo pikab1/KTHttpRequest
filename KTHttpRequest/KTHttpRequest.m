@@ -164,6 +164,10 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	return [[self alloc] initWithURL:newURL];
 }
 
++ (id)requestWithURLString:(NSString *)newURL {
+	return [[self alloc] initWithURL:[NSURL URLWithString:newURL]];
+}
+
 - (id)initWithURL:(NSURL *)newURL {
 	KTHTTP_LOG_METHOD;
 	self = [super init];
@@ -261,6 +265,14 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
  */
 - (void)setUrl:(NSString *)url {
 	_request.URL = [NSURL URLWithString:url];
+}
+
+/**
+	接続先URLを追記します
+	@param url 
+ */
+- (void)appendUrl:(NSString *)url {
+	_request.URL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", [self getUrl], url]];
 }
 
 /**
