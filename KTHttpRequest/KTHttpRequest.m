@@ -42,8 +42,6 @@ const NSStringEncoding defaultStringEncoding = NSUTF8StringEncoding;
 
 const BOOL defaultShowIndicator = NO;
 
-const BOOL defaultIsJsonResponse = NO; // YESにするとレスポンスがJSONの場合にJSONパースする。格納先はrequest.responseJSON
-
 NSString *const defaultIndicatorMessage = @"通信中...";
 
 const KTPostFormat defaultKTPostFormat = KTURLEncodedPostFormat; // 通常のPOST形式
@@ -81,6 +79,8 @@ const int defaultRedirectionLimit = 5; // この数値以上リダイレクト�
 	long double downloadExpectedContentLength;
 	NSURLAuthenticationChallenge *_authenticationChallenge;
 	int redirectCount;
+	__weak NSString *responseString;
+	id responseJSON;
 	
 	// operation
 	BOOL isCanceled;
@@ -133,7 +133,6 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 @synthesize timeOutSeconds;
 @synthesize stringEncoding;
 @synthesize showIndicator;
-@synthesize isJsonResponse;
 @synthesize responseStatusCode;
 @synthesize willStartSelector;
 @synthesize didReceiveResponseHeadersSelector;
@@ -177,7 +176,6 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	[self setPostFormat:defaultKTPostFormat];
 	[self setStringEncoding:defaultStringEncoding];
 	[self showIndicator:defaultShowIndicator];
-	[self isJsonResponse:defaultIsJsonResponse];
 	[self setIndicatorMessage:defaultIndicatorMessage];
 	[self setHTTPMethod:defaultHttpMethod];
 	[self setTimeOutSeconds:defaultTimeOutSeconds];
@@ -351,6 +349,28 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
  */
 - (NSDictionary *)allHeaderFields {
 	return self.headerFields;
+}
+
+// override
+- (NSString *)responseString {
+	if (!responseString) {
+		responseString = [self encodeWithData:[self responseData]];
+	}
+	return responseString;
+}
+
+// override
+- (id)responseJSON {
+	if (!responseJSON) {
+		NSError *jsonError = nil;
+		responseJSON = [NSJSONSerialization JSONObjectWithData:[self responseData]
+													   options:NSJSONReadingMutableContainers //kNilOptions
+														 error:&jsonError];
+		if (jsonError) {
+			KTHTTP_LOG(@"KTHttpRequest.json.error %@", [jsonError localizedDescription]);
+		}
+	}
+	return responseJSON;
 }
 
 /**
@@ -784,17 +804,6 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	UPDATE_DL_PROGRESS(1.0f);
 	
 	responseData = async_data;
-	responseString = [self encodeWithData:[self responseData]];
-	
-	if ([self isJsonResponse] && [self responseData] != nil) {
-		NSError *jsonError = nil;
-		responseJSON = [NSJSONSerialization JSONObjectWithData:[self responseData]
-													   options:NSJSONReadingMutableContainers //kNilOptions
-														 error:&jsonError];
-		if (jsonError) {
-			KTHTTP_LOG(@"KTHttpRequest.json.error %@", [jsonError localizedDescription]);
-		}
-	}
 	
 	[self performSelectorOnMainThread:@selector(connectionSuccess) withObject:nil waitUntilDone:[NSThread isMainThread]];
 }

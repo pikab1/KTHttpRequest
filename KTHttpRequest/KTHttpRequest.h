@@ -25,15 +25,14 @@ typedef enum {
 
 // ReadOnly
 @property (nonatomic, strong, readonly) NSData *responseData;				// NSData型のレスポンス
-@property (nonatomic, strong, readonly) NSString *responseString;			// NSString型のレスポンス
-@property (nonatomic, strong, readonly) NSMutableDictionary *responseJSON;	// JSONに成形したレスポンス
+@property (nonatomic, readonly) NSString *responseString;					// NSString型のレスポンス
+@property (nonatomic, readonly) id responseJSON;							// JSONに成形したレスポンス
 @property (nonatomic, strong, readonly) NSError *error;						// NSURLConnectionのエラーを格納
 @property (assign, readonly) int responseStatusCode;						// HTTPステータスコード
 
 // Setting
 @property (nonatomic) KTPostFormat postFormat;									// ポストのタイプを設定します					default:KTURLEncodedPostFormat
 @property (nonatomic, setter=showIndicator:) BOOL showIndicator;				// インジケータの表示有無を設定します				default:NO
-@property (nonatomic, setter=isJsonResponse:) BOOL isJsonResponse;				// レスポンスをJSONパースするかどうかを設定します	default:NO
 @property (nonatomic, strong) NSString *indicatorMessage;						// インジケータ内の文字列を設定します				default:通信中
 @property (nonatomic) NSTimeInterval timeOutSeconds;							// タイムアウト時間を設定します					default:60.0f
 @property (nonatomic, strong, setter=setHTTPMethod:) NSString *httpMethod;		// HTTPメソッドを設定します						default:POST
