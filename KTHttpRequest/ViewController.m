@@ -90,7 +90,6 @@
 	
 	[request showIndicator:NO];
 	[request setIndicatorMessage:@"データ受信中"];
-	[request isJsonResponse:NO];
 	[request setTag:100];
 	[request setValidatesSecureCertificate:YES]; // 証明書のチェック
 	
