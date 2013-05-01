@@ -71,6 +71,7 @@ const int defaultRedirectionLimit = 5; // この数値以上リダイレクト�
 	SEL didReceiveResponseHeadersSelector;
 	SEL didFinishSelector;
 	SEL didFailSelector;
+	SEL didCancellSelector;
 	__weak NSObject <KTHttpRequestDelegate> *delegate;
 	NSOperationQueue *privateQueue;
 	long double uploadTotalBytesWritten;
@@ -83,7 +84,7 @@ const int defaultRedirectionLimit = 5; // この数値以上リダイレクト�
 	id responseJSON;
 	
 	// operation
-	BOOL isCanceled;
+	BOOL isCancellComplete;
 	BOOL _isExecuting, _isFinished;
 	NSLock *cancelOperationLock;
 }
@@ -102,6 +103,7 @@ typedef void(^ConnectionHandler)(void);
 @property (nonatomic, copy) ConnectionHandler connectionHeaderHandler;
 @property (nonatomic, copy) ConnectionHandler connectionFinishHandler;
 @property (nonatomic, copy) ConnectionHandler connectionFailHandler;
+@property (nonatomic, copy) ConnectionHandler connectionCancellHandler;
 typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long double totalBytesExpected);
 @property (nonatomic, copy) ProgressHandler uploadProgressHandler;
 @property (nonatomic, copy) ProgressHandler downloadProgressHandler;
@@ -123,6 +125,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 @synthesize connectionHeaderHandler;
 @synthesize connectionFinishHandler;
 @synthesize connectionFailHandler;
+@synthesize connectionCancellHandler;
 @synthesize responseString;
 @synthesize responseJSON;
 @synthesize responseData;
@@ -138,6 +141,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 @synthesize didReceiveResponseHeadersSelector;
 @synthesize didFinishSelector;
 @synthesize didFailSelector;
+@synthesize didCancellSelector;
 @synthesize delegate;
 @synthesize headerFields;
 @synthesize postFormat;
@@ -245,6 +249,11 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 // 通信が失敗した時点で呼び出すBlock
 - (void)setConnectionFailBlock:(void(^)(void))block {
 	self.connectionFailHandler = block;
+}
+
+// 通信をキャンセルした時点で呼び出すBlock
+- (void)setConnectionCancellBlock:(void(^)(void))block {
+	self.connectionCancellHandler = block;
 }
 
 // アップロード進捗を返すBlock
@@ -866,6 +875,26 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 }
 
 /* ON MAIN THREAD */
+// 通信キャンセル時に必ず呼ばれるメソッド
+- (void)connectionCencel {
+	KTHTTP_LOG_METHOD;
+	
+	[self dismissIndicator];
+	
+	IS_CANCEL_OPERATION;
+	
+	if (self.connectionCancellHandler) {
+		self.connectionCancellHandler();
+	}
+	
+	if (delegate && [delegate respondsToSelector:didCancellSelector]) {
+		[delegate performSelector:didCancellSelector withObject:self afterDelay:0.0f];
+	}
+	
+	[self finishOperation];
+}
+
+/* ON MAIN THREAD */
 // 通信成功時に必ず呼ばれるメソッド
 - (void)connectionSuccess {
 	KTHTTP_LOG_METHOD;
@@ -1066,7 +1095,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		[connection cancel];
 		connection = nil;
 		
-		[self performSelectorOnMainThread:@selector(connectionError) withObject:nil waitUntilDone:[NSThread isMainThread]];
+		[self performSelectorOnMainThread:@selector(connectionCencel) withObject:nil waitUntilDone:[NSThread isMainThread]];
 	}
 }
 
@@ -1077,9 +1106,9 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	
 	[cancelOperationLock lock];
 	
-	if ([self isCancelled] && !isCanceled) {
+	if ([self isCancelled] && !isCancellComplete) {
 		
-		isCanceled = YES;
+		isCancellComplete = YES;
 		
 		[cancelOperationLock unlock];
 		

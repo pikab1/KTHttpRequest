@@ -22,6 +22,7 @@ typedef enum {
 @property (assign) SEL didReceiveResponseHeadersSelector;					// ヘッダを受信した時点で呼び出すセレクタ
 @property (assign) SEL didFinishSelector;									// 通信が成功した時点で呼び出すセレクタ
 @property (assign) SEL didFailSelector;										// 通信が失敗した時点で呼び出すセレクタ
+@property (assign) SEL didCancellSelector;									// 通信をキャンセルした時点で呼び出すセレクタ
 
 // ReadOnly
 @property (nonatomic, strong, readonly) NSData *responseData;				// NSData型のレスポンス
@@ -91,6 +92,9 @@ typedef enum {
 
 // 通信が失敗した時点で呼び出すBlock
 - (void)setConnectionFailBlock:(void(^)(void))block;	/* ON MAIN THREAD */
+
+// 通信をキャンセルした時点で呼び出すBlock
+- (void)setConnectionCancellBlock:(void(^)(void))block;	/* ON MAIN THREAD */
 
 // アップロード進捗を返すBlock
 - (void)setUploadProgressBlock:(void (^)(long double bytes, long double totalBytes, long double totalBytesExpected))block;		/* ON MAIN THREAD */
