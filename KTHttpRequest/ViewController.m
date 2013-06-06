@@ -76,8 +76,8 @@
 	[request addRequestHeader:@"User-Agent" value:@"Mozilla/5.0 (iPhone; CPU iPhone OS 5_0_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9A405 Safari/7534.48.3"];
 	
 	// post data
-	[request addPostValue:@"userid0001" forKey:@"login_id"];
-	[request addPostValue:@"password0001" forKey:@"login_password"];
+	[request addParameter:@"userid0001" forKey:@"login_id"];
+	[request addParameter:@"password0001" forKey:@"login_password"];
 	
 	// add data
 //	NSBundle *bundle = [NSBundle mainBundle];
