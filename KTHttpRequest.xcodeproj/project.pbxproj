@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BC2513C71731112F004BB611 /* KTHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = BC2513C61731112F004BB611 /* KTHttpRequest.m */; };
 		BC90C6D4171D4CCC00015305 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90C6D3171D4CCC00015305 /* UIKit.framework */; };
 		BC90C6D6171D4CCC00015305 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90C6D5171D4CCC00015305 /* Foundation.framework */; };
 		BC90C6D8171D4CCC00015305 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90C6D7171D4CCC00015305 /* CoreGraphics.framework */; };
@@ -22,11 +21,10 @@
 		BC90C6FC171D4CFD00015305 /* ORKTHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = BC90C6FA171D4CFD00015305 /* ORKTHttpRequest.m */; };
 		BC90C701171D4D0F00015305 /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = BC90C6FF171D4D0F00015305 /* SVProgressHUD.m */; };
 		BC90C702171D4D0F00015305 /* SVProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = BC90C700171D4D0F00015305 /* SVProgressHUD.bundle */; };
+		BCC2100B1760348200AC1F0C /* KTHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = BCC2100A1760348200AC1F0C /* KTHttpRequest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BC2513C51731112F004BB611 /* KTHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KTHttpRequest.h; sourceTree = "<group>"; };
-		BC2513C61731112F004BB611 /* KTHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KTHttpRequest.m; sourceTree = "<group>"; };
 		BC90C6D0171D4CCC00015305 /* KTHttpRequest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KTHttpRequest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC90C6D3171D4CCC00015305 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		BC90C6D5171D4CCC00015305 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -48,6 +46,8 @@
 		BC90C6FE171D4D0F00015305 /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
 		BC90C6FF171D4D0F00015305 /* SVProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressHUD.m; sourceTree = "<group>"; };
 		BC90C700171D4D0F00015305 /* SVProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SVProgressHUD.bundle; sourceTree = "<group>"; };
+		BCC210091760348200AC1F0C /* KTHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KTHttpRequest.h; sourceTree = "<group>"; };
+		BCC2100A1760348200AC1F0C /* KTHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KTHttpRequest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,8 +123,8 @@
 		BC90C6F6171D4CED00015305 /* KTHttpRequest */ = {
 			isa = PBXGroup;
 			children = (
-				BC2513C51731112F004BB611 /* KTHttpRequest.h */,
-				BC2513C61731112F004BB611 /* KTHttpRequest.m */,
+				BCC210091760348200AC1F0C /* KTHttpRequest.h */,
+				BCC2100A1760348200AC1F0C /* KTHttpRequest.m */,
 				BC90C6F9171D4CFD00015305 /* ORKTHttpRequest.h */,
 				BC90C6FA171D4CFD00015305 /* ORKTHttpRequest.m */,
 			);
@@ -213,7 +213,7 @@
 				BC90C6F0171D4CCC00015305 /* ViewController.m in Sources */,
 				BC90C6FC171D4CFD00015305 /* ORKTHttpRequest.m in Sources */,
 				BC90C701171D4D0F00015305 /* SVProgressHUD.m in Sources */,
-				BC2513C71731112F004BB611 /* KTHttpRequest.m in Sources */,
+				BCC2100B1760348200AC1F0C /* KTHttpRequest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

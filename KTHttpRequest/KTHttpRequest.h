@@ -73,7 +73,8 @@ typedef enum {
 - (void)setUrl:(NSString *)url;		// 通信先を設定します
 - (void)appendUrl:(NSString *)url;	// 通信先を追記します
 - (NSString *)getUrl;				// 通信先を取得します
-- (void)addPostValue:(NSString *)value forKey:(NSString *)key;			// body部にkey=value形式で追加します
+- (void)addParameter:(NSString *)value forKey:(NSString *)key;			// POSTならbody部に、GETならURLに、key=value形式で追加します
+//- (void)addPostValue:(NSString *)value forKey:(NSString *)key;			// POSTならbody部に、GETならURLに、key=value形式で追加します
 - (void)appendPostValue:(NSString *)value;								// body部にvalueをそのまま追加します
 - (void)appendPostData:(NSData *)data;									// body部にdataをそのまま追加します
 - (void)addData:(NSData *)data forKey:(NSString *)key;																			// マルチパートのデータを設定します。

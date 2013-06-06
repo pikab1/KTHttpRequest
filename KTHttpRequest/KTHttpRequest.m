@@ -300,11 +300,11 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 }
 
 /**
-	body部にkey=value形式で追加します
+	POSTならbody部に、GETならURLに、key=value形式で追加します
 	@param value
 	@param key 
  */
-- (void)addPostValue:(NSString *)value forKey:(NSString *)key {
+- (void)addParameter:(NSString *)value forKey:(NSString *)key {
 	[t_postBody setObject:value forKey:key];
 }
 
@@ -394,16 +394,34 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	
 	if ([[self fileData] count] > 0 || postFormat == KTMultipartFormDataPostFormat) {
 		
-		[self settingMultipartFormDataPostBody];
-	
+		[self settingMultipartFormDataPostBody]; // マルチパートに成形
+		
 	} else {
 		
+		NSMutableString *parameters = [NSMutableString string];
 		for (id key in [t_postBody keyEnumerator]) {
-			if ([requestBody length] != 0) {
-				[requestBody appendData:[@"&" dataUsingEncoding:[self stringEncoding]]];
+			
+			if ([parameters length] != 0) {
+				[parameters appendString:@"&"];
 			}
+			
 			NSString *value = [t_postBody valueForKey:key];
-			[requestBody appendData:[[NSString stringWithFormat:@"%@=%@", [self encodeURL:key], [self encodeURL:value]] dataUsingEncoding:[self stringEncoding]]];
+			[parameters appendString:[NSString stringWithFormat:@"%@=%@", [self encodeURL:key], [self encodeURL:value]]];
+			
+		}
+		
+		if ([[self httpMethod] isEqualToString:@"GET"]) {
+			
+			[parameters insertString:@"?" atIndex:0];
+			
+			[self appendUrl:parameters];
+			
+			return;
+			//============= return =============//
+		} else {
+			
+			[requestBody appendData:[parameters dataUsingEncoding:[self stringEncoding]]];
+			
 		}
 		
 	}
@@ -417,6 +435,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	[_request setHTTPBody:requestBody];
 	
 	_totalBytesExpectedToWrite = [requestBody length];
+	
 }
 
 // マルチパートのbody部を設定します
