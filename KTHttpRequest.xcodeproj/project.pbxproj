@@ -46,8 +46,8 @@
 		BC90C6FE171D4D0F00015305 /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
 		BC90C6FF171D4D0F00015305 /* SVProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressHUD.m; sourceTree = "<group>"; };
 		BC90C700171D4D0F00015305 /* SVProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SVProgressHUD.bundle; sourceTree = "<group>"; };
-		BCC210091760348200AC1F0C /* KTHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KTHttpRequest.h; sourceTree = "<group>"; };
 		BCC2100A1760348200AC1F0C /* KTHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KTHttpRequest.m; sourceTree = "<group>"; };
+		BCC2100C176045C100AC1F0C /* KTHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KTHttpRequest.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,7 +123,7 @@
 		BC90C6F6171D4CED00015305 /* KTHttpRequest */ = {
 			isa = PBXGroup;
 			children = (
-				BCC210091760348200AC1F0C /* KTHttpRequest.h */,
+				BCC2100C176045C100AC1F0C /* KTHttpRequest.h */,
 				BCC2100A1760348200AC1F0C /* KTHttpRequest.m */,
 				BC90C6F9171D4CFD00015305 /* ORKTHttpRequest.h */,
 				BC90C6FA171D4CFD00015305 /* ORKTHttpRequest.m */,
