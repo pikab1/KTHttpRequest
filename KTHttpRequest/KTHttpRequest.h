@@ -1,6 +1,6 @@
 //
 //  KTHttpRequest.h
-//  Created by pikab1 on 1.3.3
+//  Created by pikab1 on 1.3.4
 //  
 //  required iOS5,ARC
 //
@@ -44,6 +44,7 @@ typedef enum {
 @property (nonatomic) BOOL validatesSecureCertificate;							// SSL証明書をチェックするかどうかを設定します default:NO
 @property (nonatomic) NSUInteger maxAuthenticationFailed;						// 認証ページの最大失敗許容回数 default:5
 @property (nonatomic) int redirectionLimit;										// リダイレクト回数の制限 default:5
+@property (nonatomic) BOOL writeCharset;										// リクエストヘッダにcharsetを設定するかどうか default:YES
 
 // other
 @property (assign) int tag;							// タグ

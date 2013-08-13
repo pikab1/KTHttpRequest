@@ -56,6 +56,8 @@ const NSInteger defaultMaxAuthenticationFailed = 5; // 認証ページでこの�
 
 const int defaultRedirectionLimit = 5; // この数値以上リダイレクトを連続で行うと通信失敗とする
 
+const BOOL defaultWriteCharset = YES;
+
 @interface KTHttpRequest () {
 	NSData *responseData;
 	NSMutableURLRequest *_request;
@@ -188,6 +190,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	[self setValidatesSecureCertificate:defaultValidatesSecureCertificate];
 	[self setMaxAuthenticationFailed:defaultMaxAuthenticationFailed];
 	[self setRedirectionLimit:defaultRedirectionLimit];
+	[self setWriteCharset:defaultWriteCharset];
 	
 	self.t_postBody = [NSMutableDictionary dictionary];
 	self.requestBody = [NSMutableData data];
@@ -447,10 +450,15 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	KTHTTP_LOG_METHOD;
 	
 	NSString *charset = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding([self stringEncoding]));
+	if ([self writeCharset]) {
+		charset = [NSString stringWithFormat:@" charset=%@;", charset];
+	} else {
+		charset = @"";
+	}
 	
 	NSString *stringBoundary = [self randomStringWithLength:20];
 	
-	[self addRequestHeader:@"Content-Type" value:[NSString stringWithFormat:@"multipart/form-data; charset=%@; boundary=%@", charset, stringBoundary]];
+	[self addRequestHeader:@"Content-Type" value:[NSString stringWithFormat:@"multipart/form-data;%@ boundary=%@", charset, stringBoundary]];
 	
 	[self appendPostValue:[NSString stringWithFormat:@"--%@\r\n",stringBoundary]];
 	
