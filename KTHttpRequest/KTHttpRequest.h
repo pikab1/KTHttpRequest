@@ -7,10 +7,10 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum {
+typedef NS_ENUM(NSInteger, KTPostFormat) {
     KTMultipartFormDataPostFormat = 0,	// マルチパート
     KTURLEncodedPostFormat = 1			// POST
-} KTPostFormat;
+};
 
 @protocol KTHttpRequestDelegate;
 
@@ -105,10 +105,10 @@ typedef enum {
 - (void)setDownloadProgressBlock:(void (^)(long double bytes, long double totalBytes, long double totalBytesExpected))block;	/* ON MAIN THREAD */
 
 // 通信開始／ヘッダ受信／通信成功／通信失敗／それぞれのタイミングで別処理を行う場合はこれらをOVERRIDEする
-- (void)connectionStart;		/* ON MAIN THREAD */
-- (void)connectionHeader;		/* ON MAIN THREAD */
-- (void)connectionSuccess;		/* ON MAIN THREAD */
-- (void)connectionError;		/* ON MAIN THREAD */
+- (void)connectionStart __attribute__((objc_requires_super));		/* ON MAIN THREAD */
+- (void)connectionHeader __attribute__((objc_requires_super));		/* ON MAIN THREAD */
+- (void)connectionSuccess __attribute__((objc_requires_super));		/* ON MAIN THREAD */
+- (void)connectionError __attribute__((objc_requires_super));		/* ON MAIN THREAD */
 
 - (void)settingRequest;		/* ON SUB THREAD */
 - (void)finishOperation;	/* ON SUB THREAD */

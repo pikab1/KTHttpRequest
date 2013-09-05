@@ -20,9 +20,9 @@ NSString *const KTAuthenticationChallengeSkip = @"KTAuthenticationChallengeSkip"
 //-------------------------------------------------------------------------------------//
 
 // low 1 ~ 3 high
-#define APP_LOG_LEVEL 0
+#define KTHTTP_LOG_LEVEL 0
 
-#if APP_LOG_LEVEL >= 1
+#if KTHTTP_LOG_LEVEL >= 1
 #  define KTHTTP_LOG(...) NSLog(__VA_ARGS__)
 #  define KTHTTP_LOG_METHOD NSLog(@"%s line:%d", __func__ , __LINE__)
 #else
@@ -204,7 +204,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 }
 
 - (void)dealloc {
-#if APP_LOG_LEVEL >= 1
+#if KTHTTP_LOG_LEVEL >= 1
 	KTHTTP_LOG(@"dealloc");
 #endif
 }
@@ -429,7 +429,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		
 	}
 	
-#if APP_LOG_LEVEL >= 2
+#if KTHTTP_LOG_LEVEL >= 2
 	KTHTTP_LOG(@"==== requestBody start ====\n");
 	KTHTTP_LOG(@"%@", [[NSString alloc] initWithData:requestBody encoding:[self stringEncoding]]);
 	KTHTTP_LOG(@"\n==== requestBody end ====");
@@ -689,7 +689,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	@returns 
  */
 -(NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSHTTPURLResponse *)redirectResponse {
-#if APP_LOG_LEVEL >= 1
+#if KTHTTP_LOG_LEVEL >= 1
 	KTHTTP_LOG(@"willSendRequest URL:%@", [[request URL] absoluteString]);
 #endif
     NSURLRequest *newRequest = request;
@@ -716,7 +716,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	uploadTotalBytesWritten += bytesWritten;
 	UPDATE_UL_PROGRESS(uploadTotalBytesWritten / _totalBytesExpectedToWrite);
 
-#if APP_LOG_LEVEL >= 3
+#if KTHTTP_LOG_LEVEL >= 3
 	KTHTTP_LOG(@"============ UPLOAD ============");
 	KTHTTP_LOG(@"bytesWritten %Lf", bytesWritten);
 	KTHTTP_LOG(@"totalBytesWritten %Lf", uploadTotalBytesWritten);
@@ -846,7 +846,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 /* ON MAIN THREAD */
 // 通信開始時に必ず呼ばれるメソッド
-- (void)connectionStart {
+- (void)connectionStart __attribute__((objc_requires_super)) {
 	KTHTTP_LOG_METHOD;
 	
 	IS_CANCEL_OPERATION;
@@ -867,7 +867,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 /* ON MAIN THREAD */
 // HTTPヘッダ受信時に必ず呼ばれるメソッド（同期通信を除く）
-- (void)connectionHeader {
+- (void)connectionHeader __attribute__((objc_requires_super)) {
 	KTHTTP_LOG_METHOD;
 	
 	IS_CANCEL_OPERATION;
@@ -883,7 +883,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 /* ON MAIN THREAD */
 // 通信エラー時に必ず呼ばれるメソッド
-- (void)connectionError {
+- (void)connectionError __attribute__((objc_requires_super)) {
 	KTHTTP_LOG_METHOD;
 	
 	[self dismissIndicator];
@@ -903,7 +903,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 /* ON MAIN THREAD */
 // 通信キャンセル時に必ず呼ばれるメソッド
-- (void)connectionCencel {
+- (void)connectionCencel __attribute__((objc_requires_super)) {
 	KTHTTP_LOG_METHOD;
 	
 	[self dismissIndicator];
@@ -923,7 +923,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 /* ON MAIN THREAD */
 // 通信成功時に必ず呼ばれるメソッド
-- (void)connectionSuccess {
+- (void)connectionSuccess __attribute__((objc_requires_super)) {
 	KTHTTP_LOG_METHOD;
 	
 	[self dismissIndicator];
