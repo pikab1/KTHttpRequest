@@ -356,6 +356,14 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 }
 
 /**
+	リクエストヘッダを返します
+	@returns 
+ */
+- (NSDictionary *)allRequestHeaderFields {
+	return [_request allHTTPHeaderFields];
+}
+
+/**
 	レスポンスヘッダを返します
 	@returns
  */

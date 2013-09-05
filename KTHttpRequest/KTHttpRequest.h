@@ -81,7 +81,8 @@ typedef NS_ENUM(NSInteger, KTPostFormat) {
 - (void)addData:(NSData *)data forKey:(NSString *)key;																			// マルチパートのデータを設定します。
 - (void)addData:(NSData *)data withFileName:(NSString *)fileName andContentType:(NSString *)contentType forKey:(NSString *)key;	// マルチパートのデータを設定します。
 - (void)addRequestHeader:(NSString *)header value:(NSString *)value;	// requestオブジェクトに対してRequestHeaderを設定します
-- (NSDictionary *)allHeaderFields;	// レスポンスヘッダを返します
+- (NSDictionary *)allRequestHeaderFields;	// リクエストヘッダを返します
+- (NSDictionary *)allHeaderFields;			// レスポンスヘッダを返します
 
 // 通信を開始する直前に時点で呼ばれるBlock
 - (void)setConnectionStartBlock:(void(^)(void))block;	/* ON MAIN THREAD */
