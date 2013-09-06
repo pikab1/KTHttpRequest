@@ -7,10 +7,10 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum {
+typedef NS_ENUM(NSInteger, KTPostFormat) {
     KTMultipartFormDataPostFormat = 0,	// マルチパート
     KTURLEncodedPostFormat = 1			// POST
-} KTPostFormat;
+};
 
 @protocol KTHttpRequestDelegate;
 
