@@ -1,16 +1,16 @@
 //
 //  KTHttpRequest.h
-//  Created by pikab1 on 1.3.4
+//  Created by pikab1 on 1.3.5
 //  
 //  required iOS5,ARC
 //
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, KTPostFormat) {
+typedef enum {
     KTMultipartFormDataPostFormat = 0,	// マルチパート
     KTURLEncodedPostFormat = 1			// POST
-};
+} KTPostFormat;
 
 @protocol KTHttpRequestDelegate;
 
