@@ -12,7 +12,9 @@ ARC
 How to use simple
 -----------------
 
-    KTHttpRequest *request = [KTHttpRequest requestWithURL:[NSURL URLWithString:@"http://example.com/"]];
+    KTHttpRequest *request = [KTHttpRequest requestWithURLString:@"http://example.com/"];
+    
+    [request appendUrl:@"GetShopList"];
 	
     __weak KTHttpRequest *weakObject = request;
 	
