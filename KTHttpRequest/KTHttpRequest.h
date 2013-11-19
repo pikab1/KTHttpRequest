@@ -1,6 +1,6 @@
 //
 //  KTHttpRequest.h
-//  Created by pikab1 on 1.3.5
+//  Created by pikab1 on 1.3.6
 //  
 //  required iOS5,ARC
 //
