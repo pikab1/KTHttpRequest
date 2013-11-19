@@ -84,6 +84,7 @@ const BOOL defaultWriteCharset = YES;
 	int redirectCount;
 	__weak NSString *responseString;
 	id responseJSON;
+	__weak NSDictionary *responseDictionaryByPostValue;
 	
 	// operation
 	BOOL isCancellComplete;
@@ -130,6 +131,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 @synthesize connectionCancellHandler;
 @synthesize responseString;
 @synthesize responseJSON;
+@synthesize responseDictionaryByPostValue;
 @synthesize responseData;
 @synthesize error;
 @synthesize requestBody;
@@ -221,6 +223,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	responseData = nil;
 	responseString = nil;
 	responseJSON = nil;
+	responseDictionaryByPostValue = nil;
 	UPDATE_DL_PROGRESS(0.0f);
 	UPDATE_UL_PROGRESS(0.0f);
 	uploadTotalBytesWritten = 0.0f;
@@ -371,7 +374,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	return self.headerFields;
 }
 
-// override
+// override of property
 - (NSString *)responseString {
 	if (!responseString) {
 		responseString = [self encodeWithData:[self responseData]];
@@ -379,7 +382,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 	return responseString;
 }
 
-// override
+// override of property
 - (id)responseJSON {
 	if (!responseJSON) {
 		NSError *jsonError = nil;
@@ -391,6 +394,14 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 		}
 	}
 	return responseJSON;
+}
+
+// override of property
+- (NSDictionary *)responseDictionaryByPostValue {
+	if (!responseDictionaryByPostValue) {
+		responseDictionaryByPostValue = [self parseForKeyValueString:[self responseString]];
+	}
+	return responseDictionaryByPostValue;
 }
 
 /**
@@ -1076,6 +1087,28 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 			block();
 		});
 	}
+}
+
+/**
+	key=value形式の文字列を分解してNSDictionaryで返します
+	@param string
+	@returns 
+ */
+- (NSDictionary *)parseForKeyValueString:(NSString *)string {
+	NSArray *splitValues = [string componentsSeparatedByString:@"&"];
+	NSMutableDictionary *resultDictionary = [NSMutableDictionary dictionary];
+	for (NSString *str in splitValues) {
+		NSRange range = [str rangeOfString:@"="];
+		if (range.location != NSNotFound) {
+			NSString *key = [str substringWithRange:NSMakeRange(0, range.location)];
+			NSString *value = [str substringWithRange:NSMakeRange(range.location + range.length, [str length] - (range.location + range.length))];
+			[resultDictionary setObject:value forKey:key];
+		}
+	}
+	if ([resultDictionary count] == 0) {
+		resultDictionary = nil;
+	}
+	return resultDictionary;
 }
 
 //-------------------------------------------------------------------------------------//

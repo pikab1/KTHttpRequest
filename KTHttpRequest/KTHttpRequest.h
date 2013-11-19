@@ -28,6 +28,7 @@ typedef NS_ENUM(NSInteger, KTPostFormat) {
 @property (nonatomic, strong, readonly) NSData *responseData;				// NSData型のレスポンス
 @property (nonatomic, readonly) NSString *responseString;					// NSString型のレスポンス
 @property (nonatomic, readonly) id responseJSON;							// JSONに成形したレスポンス
+@property (nonatomic, readonly) NSDictionary *responseDictionaryByPostValue;// key=valueのレスポンスをNSDictionaryに変換したレスポンス
 @property (nonatomic, strong, readonly) NSError *error;						// NSURLConnectionのエラーを格納
 @property (assign, readonly) int responseStatusCode;						// HTTPステータスコード
 
