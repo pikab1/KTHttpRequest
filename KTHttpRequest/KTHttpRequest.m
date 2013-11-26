@@ -82,9 +82,9 @@ const BOOL defaultWriteCharset = YES;
 	long double downloadExpectedContentLength;
 	NSURLAuthenticationChallenge *_authenticationChallenge;
 	int redirectCount;
-	__weak NSString *responseString;
+	NSString *responseString;
 	id responseJSON;
-	__weak NSDictionary *responseDictionaryByPostValue;
+	NSDictionary *responseDictionaryByPostValue;
 	
 	// operation
 	BOOL isCancellComplete;
@@ -207,7 +207,7 @@ typedef void (^ProgressHandler)(long double bytes, long double totalBytes, long 
 
 - (void)dealloc {
 #if KTHTTP_LOG_LEVEL >= 1
-	KTHTTP_LOG(@"dealloc");
+	KTHTTP_LOG(@"KTHttpRequest dealloc");
 #endif
 }
 
